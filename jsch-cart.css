@@ -2,10 +2,10 @@
     font-family: Tahoma, sans-serif;
     position: absolute;
     left:0;
-    top:0;
+    top:30%;
     box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-    width:200px;
-    height: 100%;
+    width:100%;
+    height: auto;
     background-color:#fff;
     color:silver;   
 }
@@ -20,12 +20,13 @@
     cursor:pointer;
 }
 
-#jsch-cart ul {
-    list-style-type: none;
-    padding-inline-start:0;
-    margin-block-start:0;
-    margin-block-end:0;
-    position: relative;
+#jsch-cart-items {
+    text-align:center;
+}
+
+#jsch-cart-items table {
+    display: inline-block;
+    margin-bottom:30px;
 }
 
 
@@ -46,12 +47,16 @@
 }
 
 @keyframes show {
-    0%   {left:-200px;}
-    100% {left:0px;}
+    0%   {opacity:0;}
+    100% {opacity:1;}
   }  
 
 @keyframes hide {
-    0%   {left:0px;}
-    100% {left:-200px;}
+    0%   {opacity:1;}
+    100% {opacity:0;}
   }
 
+
+  .shop {
+    text-align:center;
+  }

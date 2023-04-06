@@ -1,6 +1,7 @@
 
 jschRenderCartPanels();
 jschRenderCart();
+jschCartItemsRender();
 
 document.getElementById('jsch-cart-btn').onclick = function() {     
     jschToggleCart();
@@ -17,8 +18,7 @@ var cart=[];
 function jschRenderCartPanels() {
     var cartPanels=document.getElementsByClassName('jsch-product-cart-panel');
     for (let i = 0; i < cartPanels.length; i++) {
-        let productId=cartPanels[i].getAttribute('productId');
-        cartPanels[i].innerHTML=jschProductCartPanel(productId);
+        cartPanels[i].innerHTML=jschProductCartPanel();
     }
 
     var cartButtons=document.getElementsByClassName('jsch-to-cart');
@@ -26,7 +26,7 @@ function jschRenderCartPanels() {
         cartButtons[i].onclick = function(e) {
             let prodId=e.target.parentElement.getAttribute('productId');
             addItemToCart(prodId,1);
-            console.log(jschGetFromCart());
+            jschCartItemsRender();
         }
     }
     
@@ -34,8 +34,8 @@ function jschRenderCartPanels() {
     for (let i = 0; i < cartButtons.length; i++) {
         cartButtons[i].onclick = function(e) {
             let prodId=e.target.parentElement.getAttribute('productId');
-            setCountForItem(prodId,1);
-            console.log(jschGetFromCart());
+            addItemToCart(prodId,1);
+            jschCartItemsRender();
         }
     }
     
@@ -43,14 +43,14 @@ function jschRenderCartPanels() {
     for (let i = 0; i < cartButtons.length; i++) {
         cartButtons[i].onclick = function(e) {
             let prodId=e.target.parentElement.getAttribute('productId');
-            setCountForItem(prodId,-1);
-            console.log(jschGetFromCart());
+            removeItemFromCart(prodId);
+            jschCartItemsRender();
         }
     }        
     
 }
 
-function jschProductCartPanel(productId) {
+function jschProductCartPanel() {
     return `
     <button class='jsch-to-cart'>To Cart</button>
     <button class='jsch-cart-increase'>+</button>
@@ -62,11 +62,12 @@ function jschRenderCart() {
     div.setAttribute("id", "jsch-cart");
     div.setAttribute("class", "jsch-hidden-cart");
     const createdDiv=document.body.appendChild(div);
-    createdDiv.innerHTML+=jschCartClose();
+    createdDiv.innerHTML+=jschCartInner();
 }
 
-function jschCartClose() {
-    return `<div class='jschCartClose'><span id='jsch-cart-close-x'>&#9932;</span></div>`;
+function jschCartInner() {
+    return `<div class='jschCartClose'><span id='jsch-cart-close-x'>&#9932;</span></div>
+    <div id='jsch-cart-items'></div>`;
 }
 
 function jschRefreshCart() {
@@ -75,6 +76,43 @@ function jschRefreshCart() {
         jschToggleCart(menuelement,'jsch-hidden-cart');
         return;
     }
+}
+
+function jschCartItemsRender() {
+  var cart=jschGetFromCart();
+  if(cart.length!=0) {
+    var string=`
+    <table>
+      <tr>
+        <td>Id</td>
+        <td>Quantity</td>
+        <td>Name</td>
+        <td>Price</td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+    
+    `;
+    
+    i=0;
+    for(var i in cart) {
+      string+=`<tr>
+      <td>${cart[i].id}</td>
+      <td>${cart[i].id}</td>
+      <td>${cart[i].count}</td>
+      <td>${cart[i].id}</td>
+      <td><button class='jsch-cart-increase'>+</button></td>
+      <td><button class='jsch-cart-decrease'>-</button></td>
+      <td><button class='jsch-cart-delete'>x</button></td>
+      </tr>`;
+      i++;
+    }
+    string+=`</table>`;   
+  } else {
+    var string="";
+  }
+  document.getElementById('jsch-cart-items').innerHTML=string;
 }
 
 function jschToggleCart() { 
@@ -93,17 +131,6 @@ function jschToggleCart() {
     }
 }
 
-function jschSetCart(id,num) {
-
-    var arr=[];
-
-    arr={'id': id,'q': num};
-
-
-    var obj=jschGetFromCart();
-    console.log(arr);
-}
-
 function jschSetToCart(CartObject) {
     localStorage.setItem("CartObject", JSON.stringify(CartObject));
 }
@@ -119,6 +146,7 @@ function jschGetFromCart() {
 
   // Add to cart
   function addItemToCart(id,count) {
+    var cart=jschGetFromCart();
     i=0;
     for(var i in cart) {
       if(cart[i].id === id) {
@@ -134,6 +162,7 @@ function jschGetFromCart() {
   }
   // Set count from item
   function setCountForItem(id,count) {
+    var cart=jschGetFromCart();
     i=0;
     for(var i in cart) {
       if (cart[i].id === id) {
@@ -142,12 +171,14 @@ function jschGetFromCart() {
       }
       i++;
     }
+    jschSetToCart(cart);
   };
   // Remove item from cart
-  function removeItemFromCart(name) {
+  function removeItemFromCart(id) {
+      var cart=jschGetFromCart();  
       i=0;
       for(var i in cart) {
-        if(cart[i].name === name) {
+        if(cart[i].id === id) {
           cart[i].count --;
           if(cart[i].count === 0) {
             cart.splice(i, 1);
@@ -160,10 +191,11 @@ function jschGetFromCart() {
   }
 
   // Remove all items from cart
-  function removeItemFromCartAll(name) {
+  function removeItemFromCartAll(id) {
+    var cart=jschGetFromCart();
     i=0;
     for(var i in cart) {
-      if(cart[i].name === name) {
+      if(cart[i].id === id) {
         cart.splice(i, 1);
         i++;
         break;
@@ -176,4 +208,5 @@ function jschGetFromCart() {
   function clearCart() {
     cart = [];
     jschSetToCart(cart);
+    jschCartItemsRender();
   }
